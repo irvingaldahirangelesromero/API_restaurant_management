@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
-import { PlatillosService } from './platillos.service';
-import { ExportService } from '../reports/export/export.service';
-import { ExportFormat, ExportType } from '../reports/export/dto/queryDTO';
+import { PlatillosService } from '../../platillos/platillos.service';
+import { ExportService } from '../export/export.service';
+import { ExportFormat, ExportType } from '../export/dto/queryDTO';
 
 type UploadedCsvFile = {
   originalname: string;
@@ -61,13 +61,11 @@ export class PlatillosController {
   }
 
   @Get('export/dishes/excel')
-  async exportExcel(
-    @Query() query: any,
-    @Res() res: Response,
-  ) {
+  async exportExcel(@Query() query: any, @Res() res: Response) {
     const platillos = await this.platillosService.getAllPlatillos();
 
-    const { buffer, filename, contentType } = await this.exportService.exportPlatillos(platillos);
+    const { buffer, filename, contentType } =
+      await this.exportService.exportPlatillos(platillos);
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -75,10 +73,7 @@ export class PlatillosController {
   }
 
   @Get('export/sales/excel')
-  async exportSalesExcel(
-    @Query() query: any,
-    @Res() res: Response,
-  ) {
+  async exportSalesExcel(@Query() query: any, @Res() res: Response) {
     const { buffer, filename, contentType } = await this.exportService.export({
       ...query,
       format: ExportFormat.XLSX,
@@ -93,6 +88,37 @@ export class PlatillosController {
   @Get('schema')
   async schema() {
     return this.platillosService.getSchema();
+  }
+
+  @Post('import')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async importPlatillos(
+    @UploadedFile() file: UploadedCsvFile | undefined,
+    @Query('mode') mode?: 'insert' | 'upsert',
+  ) {
+    if (!file) throw new BadRequestException('Falta el archivo (field: file)');
+
+    const ext = file.originalname.toLowerCase().split('.').pop();
+    const fileMode = mode ?? 'insert';
+
+    if (ext === 'csv') {
+      const text = file.buffer.toString('utf-8');
+      return this.platillosService.importCsv(text, fileMode);
+    } else if (ext === 'json') {
+      const text = file.buffer.toString('utf-8');
+      const body = JSON.parse(text);
+      return this.platillosService.importJson(body, fileMode);
+    } else if (ext === 'xlsx') {
+      return this.platillosService.importExcel(file.buffer, fileMode);
+    } else {
+      throw new BadRequestException(
+        'Formato no soportado. Usa .csv, .json o .xlsx',
+      );
+    }
   }
 
   @Post('import.csv')
