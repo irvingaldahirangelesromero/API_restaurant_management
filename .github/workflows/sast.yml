@@ -17,7 +17,8 @@ jobs:
           fetch-depth: 0 
 
       - name: SonarQube Cloud Scan
-        uses: sonarsource/sonarcloud-scan-action@v5
+        
+        uses: sonarsource/sonarcloud-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,5 +27,4 @@ jobs:
             -Dsonar.organization=irvingaldahirangelesromero
             -Dsonar.projectKey=API_restaurant_management
             -Dsonar.sources=src
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.verbose=true
