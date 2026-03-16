@@ -17,7 +17,8 @@ jobs:
           fetch-depth: 0 
 
       - name: SonarQube Cloud Scan
-        uses: sonarsource/sonarcloud-scan-action@master
+        # Usamos la versión estable certificada para evitar el error 'repository not found'
+        uses: sonarsource/sonarcloud-scan-action@v3.1.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
