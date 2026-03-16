@@ -11,22 +11,24 @@ jobs:
     name: SonarQube Cloud Scan
     runs-on: ubuntu-latest
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: SonarQube Cloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2   # ← v2, compatible con plan Free
+      - name: Instalar SonarScanner CLI 4.8
+        run: |
+          wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+          unzip sonar-scanner-cli-4.8.0.2856-linux.zip
+          echo "$PWD/sonar-scanner-4.8.0.2856-linux/bin" >> $GITHUB_PATH
+
+      - name: Ejecutar análisis SonarCloud
+        run: |
+          sonar-scanner \
+            -Dsonar.organization=irvingaldahirangelesromero \
+            -Dsonar.projectKey=irvingaldahirangelesromero_API_restaurant_management \
+            -Dsonar.sources=src \
+            -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=irvingaldahirangelesromero
-            -Dsonar.projectKey=irvingaldahirangelesromero_API_restaurant_management
-            -Dsonar.sources=src
