@@ -21,7 +21,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       with:
+        with:
           args: >
             -Dsonar.organization=irvingaldahirangelesromero
             -Dsonar.projectKey=API_restaurant_management
