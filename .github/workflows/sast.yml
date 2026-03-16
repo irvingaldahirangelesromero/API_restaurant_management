@@ -1,0 +1,28 @@
+name: Reporte de Análisis SAST (SonarQube Cloud)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sast_scan:
+    name: SonarQube Cloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       with:
+          args: >
+            -Dsonar.organization=irvingaldahirangelesromero
+            -Dsonar.projectKey=API_restaurant_management
+            -Dsonar.sources=src
