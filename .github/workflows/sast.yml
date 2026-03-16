@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout código
@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarQube Cloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3
+        uses: SonarSource/sonarcloud-github-action@v2   # ← v2, compatible con plan Free
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
