@@ -11,6 +11,9 @@ jobs:
     name: SonarQube Cloud Scan
     runs-on: ubuntu-latest
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -18,12 +21,12 @@ jobs:
           fetch-depth: 0
 
       - name: SonarQube Cloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3   
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
             -Dsonar.organization=irvingaldahirangelesromero
-            -Dsonar.projectKey=API_restaurant_management
+            -Dsonar.projectKey=irvingaldahirangelesromero_API_restaurant_management
             -Dsonar.sources=src
