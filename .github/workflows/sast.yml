@@ -1,45 +1,25 @@
-name: Reporte de Análisis SAST (SonarQube Cloud)
+name: Reporte de Análisis SAST (CodeQL)
 
 on:
   push:
     branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
-  sast_scan:
-    name: SonarQube Cloud Scan
+  analyze:
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          fetch-depth: 0
+          languages: javascript  # cambia según tu proyecto: javascript, python, java, etc.
 
-      - name: Instalar Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          # setup-java ya configura JAVA_HOME y PATH automáticamente ↑
-
-      - name: Instalar SonarScanner CLI 4.8
-        run: |
-          wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-          unzip sonar-scanner-cli-4.8.0.2856-linux.zip
-          # Reemplazar JRE bundleado (Java 11) con symlink al Java 17 del sistema
-          rm -rf sonar-scanner-4.8.0.2856-linux/jre
-          ln -s $JAVA_HOME sonar-scanner-4.8.0.2856-linux/jre
-          echo "$PWD/sonar-scanner-4.8.0.2856-linux/bin" >> $GITHUB_PATH
-
-      - name: Ejecutar análisis SonarCloud
-        run: |
-          sonar-scanner \
-            -Dsonar.organization=irvingaldahirangelesromero \
-            -Dsonar.projectKey=irvingaldahirangelesromero_API_restaurant_management \
-            -Dsonar.sources=src \
-            -Dsonar.host.url=https://sonarcloud.io
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          # Sin override de JAVA_HOME — setup-java ya lo hizo correctamente ↑
+      - name: Ejecutar análisis CodeQL
+        uses: github/codeql-action/analyze@v3
